@@ -3,7 +3,8 @@ jQuery(document).ready(function($) {
 "use strict";
 
     //Contact
-    $('form.contactForm').submit(function(){
+    $('form.contactForm').submit(function(e){
+        e.preventDefault()
         var f = $(this).find('.form-group'), 
         ferror = false, 
         emailExp = /^[^\s()<>@,;:\/]+@\w[\w\.-]+\.[a-z]{2,}$/i;
@@ -76,26 +77,29 @@ jQuery(document).ready(function($) {
             }
         });
         if( ferror ) return false; 
-        else var str = $(this).serialize();		
-            $.ajax({
-                type: "POST",
-                url: "contactform/contactform.php",
-                data: str,
-                success: function(msg){
-                   // alert(msg);
-                    if(msg == 'OK') {
-                        $("#sendmessage").addClass("show");			
-                        $("#errormessage").removeClass("show");	
-                        $('.contactForm').find("input, textarea").val("");
-                    }
-                    else {
-                        $("#sendmessage").removeClass("show");
-                        $("#errormessage").addClass("show");
-                        $('#errormessage').html(msg);
-                    }
-                    
-                }
-            });
+       const info = {
+           name: $('#name').val(),
+           email: $('#email').val(),
+           subject: $('#subject').val(),
+           message: $('#message').val(),
+       }
+        $.ajax({
+            type: "POST",
+            url: "https://dm2-developers-back.vercel.app/email",
+            data: info,
+        })
+        .done(function() {
+            console.log('OK')
+            $("#sendmessage").addClass("show");			
+            $("#errormessage").removeClass("show");	
+            $('.contactForm').find("input, textarea").val("");
+        })
+        .fail(function() {
+            console.log('Error')
+            $("#sendmessage").removeClass("show");
+            $("#errormessage").addClass("show");
+            $('#errormessage').html(msg);
+        })
         return false;
     });
 
